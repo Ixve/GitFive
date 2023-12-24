@@ -219,6 +219,7 @@ async def hunt(username: str, json_file="", runner: GitfiveRunner=None):
         xray.near_show(runner)
 
     # Delete
+    tempstring = input("[#] Press any key to delete the remote repository")
     runner.rc.print("\n[+] Deleted the remote repo", style="italic")
     await github.delete_repo(runner, temp_repo_name)
     
