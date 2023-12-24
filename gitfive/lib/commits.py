@@ -82,7 +82,7 @@ async def scrape(runner: GitfiveRunner, repo_name: str, emails_index: Dict[str, 
         _, total = await get_commits_count(runner, raw_body=req.text)
         last_hash = [x for x in body.select('a') if x.text.lower() == "permalink"][0].attrs['href'].split('/')[-1]
     else:
-        exit("Couldn't fetch the last hash.")
+        print("Couldn't fetch the last hash.")
 
     to_request = [0]+list(range(-1, total-1, 35))[1:]
 
