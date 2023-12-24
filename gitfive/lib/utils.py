@@ -7,7 +7,7 @@ from PIL import Image
 from unidecode import unidecode
 
 import os
-import re
+import json
 import stat
 import socket
 from pathlib import Path
@@ -105,21 +105,23 @@ def show_banner():
     rprint(banner)
 
 async def get_commits_count(runner: GitfiveRunner, repo_url: str="", raw_body: str=""):
+    userprofile = os.getenv("USERPROFILE")
     if not raw_body:
         req = await runner.as_client.get(repo_url)
         raw_body = req.text
     body = BeautifulSoup(raw_body, 'html.parser')
-    # Slightly modified this line to find the correct <span> containing the commit count
-    commits_icon_el = body.find("a", {"href": re.compile(r'.*/commits/mirage$')})
-    if not commits_icon_el:
+    x = body.find_all("script", {"type": "application/json", "data-target": "react-partial.embeddedData"})
+    try:
+        y = json.loads(x[1].string)
+        commits = y["props"]["initialPayload"]["overview"]["commitCount"]
+    except Exception as e:
+        commits = None
+        pass
+    if not commits:
         return False, 0
-    nb_commits_el = commits_icon_el.findNext("span")
-    if not nb_commits_el:
-        return False, 0
-    nb_commits_str = nb_commits_el.text.split()[0].replace(",", "")
-    if nb_commits_str == "∞":
+    if commits == "∞":
         return True, 50000 # Temporary limit, because GitHub hasn't liked my 70k commits
-    nb_commits = int(nb_commits_str)
+    nb_commits = int(commits)
     return True, nb_commits
 
 def chunks(lst: List[any], n: int):
