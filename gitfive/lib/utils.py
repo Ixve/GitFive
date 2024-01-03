@@ -121,6 +121,7 @@ async def get_commits_count(runner: GitfiveRunner, repo_url: str="", raw_body: s
         return False, 0
     if commits == "∞":
         return True, 50000 # Temporary limit, because GitHub hasn't liked my 70k commits
+    commits = commits.replace(",", "")
     nb_commits = int(commits)
     return True, nb_commits
 
